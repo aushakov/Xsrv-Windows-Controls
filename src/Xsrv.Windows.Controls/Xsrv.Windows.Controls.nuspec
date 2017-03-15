@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Xsrv.Windows.Controls</id>
+    <version>$version$</version>
+    <title>Xsrv Windows Controls</title>
+    <authors>Al</authors>
+    <owners>Al</owners>
+    <licenseUrl>https://raw.githubusercontent.com/aushakov/Xsrv-Windows-Controls/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/aushakov/Xsrv-Windows-Controls</projectUrl>
+    <iconUrl>https://github.com/aushakov/Xsrv-Windows-Controls/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This a simple controls library that can be helpful to WPF application developers</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright Al 2017</copyright>
+    <tags>WPF XAML</tags>
+  </metadata>
+</package>
