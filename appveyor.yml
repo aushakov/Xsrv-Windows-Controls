@@ -37,7 +37,7 @@ build_script:
         
         $curlArgument = @('--form', ('token={0}' -f $env:CoverityProjectToken), 
                         '--form', ('email={0}' -f $env:CoverityNotificationEmail),
-                        '--form', ('file=@{0}' -f $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip),
+                        '--form', ('file=@{0}\{1}.zip' -f $env:APPVEYOR_BUILD_FOLDER, $env:APPVEYOR_PROJECT_NAME),
                         '--form', ('version="{0}"' -f $env:APPVEYOR_BUILD_VERSION),
                         '--form', 'description="Scheduled CI server build."',
                         ('https://scan.coverity.com/builds?project={0}' -f $env:APPVEYOR_REPO_NAME),
