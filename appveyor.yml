@@ -35,12 +35,12 @@ build_script:
         
         "Uploading Coverity results..."
         
-        $curlArgument = @('--form', 'token=$env:CoverityProjectToken', 
-                        '--form', 'email=$env:CoverityNotificationEmail',
-                        '--form', 'file=@$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip',
-                        '--form', 'version="$env:APPVEYOR_BUILD_VERSION"',
+        $curlArgument = @('--form', ('token={0}' -f $env:CoverityProjectToken), 
+                        '--form', ('email={0}' -f $env:CoverityNotificationEmail),
+                        '--form', ('file=@{0}' -f $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip),
+                        '--form', ('version="{0}"' -f $env:APPVEYOR_BUILD_VERSION),
                         '--form', 'description="Scheduled CI server build."',
-                        'https://scan.coverity.com/builds?project=$env:APPVEYOR_REPO_NAME',
+                        ('https://scan.coverity.com/builds?project={0}' -f $env:APPVEYOR_REPO_NAME),
                         '-fsS')
         $curl = 'C:\Program Files\Git\mingw64\bin\curl.exe'
         & $curl $curlArgument 
