@@ -1,0 +1,63 @@
+version: 1.0.0.{build}
+branches:
+  only:
+  - master
+configuration: Release
+platform: Any CPU
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+environment:
+  CoverityProjectToken:
+    secure: Ne1n0S2Hho/W4U+hv8yqZQPDANg9qoYkTkEwz1ZfltI=
+  CoverityNotificationEmail:
+    secure: +0WFqTW35ml8H79s+ZolRtr1R1rePz5evojK9TpBlKA=
+build_script:
+- ps: >-
+$buildCmd = "C:\Program Files (x86)\MSBuild\14.0\bin\msbuild.exe"
+
+$buildArgs = @(
+      "/m",
+      "/l:C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll",
+      "/p:Configuration=Release",
+      "/p:Platform=""Any CPU""")
+
+"Building project with Coverity..."
+
+cov-build --dir cov-int $buildCmd "$env:APPVEYOR_BUILD_FOLDER\src\Xsrv.Windows.Controls.sln" $buildArgs
+
+"Compressing Coverity results..."
+
+7z a "$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip" cov-int
+
+"Uploading Coverity results..."
+
+$curlArgument = @('--form', 'token=$env:CoverityProjectToken', 
+                '--form', 'email=$env:CoverityNotificationEmail',
+                '--form', 'file=@$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip',
+                '--form', 'version="$env:APPVEYOR_BUILD_VERSION"',
+                '--form', 'description="Scheduled CI server build."',
+                'https://scan.coverity.com/builds?project=$env:APPVEYOR_REPO_NAME',
+                '-fsS')
+$curl = 'C:\Program Files\Git\mingw64\bin\curl.exe'
+& $curl $curlArgument 
+
+"Creating a NuGet Package..."
+
+nuget pack "$env:APPVEYOR_BUILD_FOLDER\src\Xsrv.Windows.Controls\Xsrv.Windows.Controls.csproj" `
+-Properties "Configuration=Release;Platform=AnyCPU" `
+-OutputDirectory "$env:APPVEYOR_BUILD_FOLDER" `
+-Symbols
+
+artifacts:
+- path: '%APPVEYOR_PROJECT_NAME%.zip'
+- path: .\*.nupkg
+deploy:
+- provider: NuGet
+  api_key:
+    secure: VjHUWO0Ii5O1hMm9ITFvingbprwvg3EtkJ8oYUpS+U5i8iwmiHCLa428E2ai9cDn
+  skip_symbols: false
+  artifact: /.*\.nupkg1/
