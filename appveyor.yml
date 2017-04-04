@@ -16,42 +16,41 @@ environment:
   CoverityNotificationEmail:
     secure: +0WFqTW35ml8H79s+ZolRtr1R1rePz5evojK9TpBlKA=
 build_script:
-- ps: >-
-$buildCmd = "C:\Program Files (x86)\MSBuild\14.0\bin\msbuild.exe"
-
-$buildArgs = @(
-      "/m",
-      "/l:C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll",
-      "/p:Configuration=Release",
-      "/p:Platform=""Any CPU""")
-
-"Building project with Coverity..."
-
-cov-build --dir cov-int $buildCmd "$env:APPVEYOR_BUILD_FOLDER\src\Xsrv.Windows.Controls.sln" $buildArgs
-
-"Compressing Coverity results..."
-
-7z a "$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip" cov-int
-
-"Uploading Coverity results..."
-
-$curlArgument = @('--form', 'token=$env:CoverityProjectToken', 
-                '--form', 'email=$env:CoverityNotificationEmail',
-                '--form', 'file=@$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip',
-                '--form', 'version="$env:APPVEYOR_BUILD_VERSION"',
-                '--form', 'description="Scheduled CI server build."',
-                'https://scan.coverity.com/builds?project=$env:APPVEYOR_REPO_NAME',
-                '-fsS')
-$curl = 'C:\Program Files\Git\mingw64\bin\curl.exe'
-& $curl $curlArgument 
-
-"Creating a NuGet Package..."
-
-nuget pack "$env:APPVEYOR_BUILD_FOLDER\src\Xsrv.Windows.Controls\Xsrv.Windows.Controls.csproj" `
--Properties "Configuration=Release;Platform=AnyCPU" `
--OutputDirectory "$env:APPVEYOR_BUILD_FOLDER" `
--Symbols
-
+- ps: |
+        $buildCmd = "C:\Program Files (x86)\MSBuild\14.0\bin\msbuild.exe"
+        
+        $buildArgs = @(
+              "/m",
+              "/l:C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll",
+              "/p:Configuration=Release",
+              "/p:Platform=""Any CPU""")
+        
+        "Building project with Coverity..."
+        
+        cov-build --dir cov-int $buildCmd "$env:APPVEYOR_BUILD_FOLDER\src\Xsrv.Windows.Controls.sln" $buildArgs
+        
+        "Compressing Coverity results..."
+        
+        7z a "$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip" cov-int
+        
+        "Uploading Coverity results..."
+        
+        $curlArgument = @('--form', 'token=$env:CoverityProjectToken', 
+                        '--form', 'email=$env:CoverityNotificationEmail',
+                        '--form', 'file=@$env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME.zip',
+                        '--form', 'version="$env:APPVEYOR_BUILD_VERSION"',
+                        '--form', 'description="Scheduled CI server build."',
+                        'https://scan.coverity.com/builds?project=$env:APPVEYOR_REPO_NAME',
+                        '-fsS')
+        $curl = 'C:\Program Files\Git\mingw64\bin\curl.exe'
+        & $curl $curlArgument 
+        
+        "Creating a NuGet Package..."
+        
+        nuget pack "$env:APPVEYOR_BUILD_FOLDER\src\Xsrv.Windows.Controls\Xsrv.Windows.Controls.csproj" `
+        -Properties "Configuration=Release;Platform=AnyCPU" `
+        -OutputDirectory "$env:APPVEYOR_BUILD_FOLDER" `
+        -Symbols
 artifacts:
 - path: '%APPVEYOR_PROJECT_NAME%.zip'
 - path: .\*.nupkg
